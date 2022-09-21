@@ -1,11 +1,11 @@
 
 tasks:
   - name: frontend
-    before: cd front-end
+    before: cd frontend
     init: yarn
     command: yarn dev
   - name: Restore env file
-    before: cd front-end
+    before: cd frontend
     command: |
       if [ -f .env.local ]; then
         # If this workspace already has a .env, don't override it
