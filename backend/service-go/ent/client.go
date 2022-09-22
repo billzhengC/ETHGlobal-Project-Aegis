@@ -10,6 +10,7 @@ import (
 
 	"aegis/ent/migrate"
 
+	"aegis/ent/atasklog"
 	"aegis/ent/tgocache"
 	"aegis/ent/tgoens"
 	"aegis/ent/tgonft"
@@ -25,6 +26,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// ATaskLog is the client for interacting with the ATaskLog builders.
+	ATaskLog *ATaskLogClient
 	// TGoCache is the client for interacting with the TGoCache builders.
 	TGoCache *TGoCacheClient
 	// TGoEns is the client for interacting with the TGoEns builders.
@@ -48,6 +51,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.ATaskLog = NewATaskLogClient(c.config)
 	c.TGoCache = NewTGoCacheClient(c.config)
 	c.TGoEns = NewTGoEnsClient(c.config)
 	c.TGoNFT = NewTGoNFTClient(c.config)
@@ -86,6 +90,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:           ctx,
 		config:        cfg,
+		ATaskLog:      NewATaskLogClient(cfg),
 		TGoCache:      NewTGoCacheClient(cfg),
 		TGoEns:        NewTGoEnsClient(cfg),
 		TGoNFT:        NewTGoNFTClient(cfg),
@@ -110,6 +115,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:           ctx,
 		config:        cfg,
+		ATaskLog:      NewATaskLogClient(cfg),
 		TGoCache:      NewTGoCacheClient(cfg),
 		TGoEns:        NewTGoEnsClient(cfg),
 		TGoNFT:        NewTGoNFTClient(cfg),
@@ -121,7 +127,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		TGoCache.
+//		ATaskLog.
 //		Query().
 //		Count(ctx)
 //
@@ -144,11 +150,102 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.ATaskLog.Use(hooks...)
 	c.TGoCache.Use(hooks...)
 	c.TGoEns.Use(hooks...)
 	c.TGoNFT.Use(hooks...)
 	c.TGoRetirement.Use(hooks...)
 	c.TUser.Use(hooks...)
+}
+
+// ATaskLogClient is a client for the ATaskLog schema.
+type ATaskLogClient struct {
+	config
+}
+
+// NewATaskLogClient returns a client for the ATaskLog from the given config.
+func NewATaskLogClient(c config) *ATaskLogClient {
+	return &ATaskLogClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `atasklog.Hooks(f(g(h())))`.
+func (c *ATaskLogClient) Use(hooks ...Hook) {
+	c.hooks.ATaskLog = append(c.hooks.ATaskLog, hooks...)
+}
+
+// Create returns a builder for creating a ATaskLog entity.
+func (c *ATaskLogClient) Create() *ATaskLogCreate {
+	mutation := newATaskLogMutation(c.config, OpCreate)
+	return &ATaskLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ATaskLog entities.
+func (c *ATaskLogClient) CreateBulk(builders ...*ATaskLogCreate) *ATaskLogCreateBulk {
+	return &ATaskLogCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ATaskLog.
+func (c *ATaskLogClient) Update() *ATaskLogUpdate {
+	mutation := newATaskLogMutation(c.config, OpUpdate)
+	return &ATaskLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ATaskLogClient) UpdateOne(al *ATaskLog) *ATaskLogUpdateOne {
+	mutation := newATaskLogMutation(c.config, OpUpdateOne, withATaskLog(al))
+	return &ATaskLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ATaskLogClient) UpdateOneID(id uint64) *ATaskLogUpdateOne {
+	mutation := newATaskLogMutation(c.config, OpUpdateOne, withATaskLogID(id))
+	return &ATaskLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ATaskLog.
+func (c *ATaskLogClient) Delete() *ATaskLogDelete {
+	mutation := newATaskLogMutation(c.config, OpDelete)
+	return &ATaskLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ATaskLogClient) DeleteOne(al *ATaskLog) *ATaskLogDeleteOne {
+	return c.DeleteOneID(al.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *ATaskLogClient) DeleteOneID(id uint64) *ATaskLogDeleteOne {
+	builder := c.Delete().Where(atasklog.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ATaskLogDeleteOne{builder}
+}
+
+// Query returns a query builder for ATaskLog.
+func (c *ATaskLogClient) Query() *ATaskLogQuery {
+	return &ATaskLogQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ATaskLog entity by its id.
+func (c *ATaskLogClient) Get(ctx context.Context, id uint64) (*ATaskLog, error) {
+	return c.Query().Where(atasklog.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ATaskLogClient) GetX(ctx context.Context, id uint64) *ATaskLog {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ATaskLogClient) Hooks() []Hook {
+	return c.hooks.ATaskLog
 }
 
 // TGoCacheClient is a client for the TGoCache schema.

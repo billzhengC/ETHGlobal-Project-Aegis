@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"aegis/ent/atasklog"
 	"aegis/ent/schema"
 	"aegis/ent/tgocache"
 	"aegis/ent/tgoens"
@@ -16,6 +17,34 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	atasklogFields := schema.ATaskLog{}.Fields()
+	_ = atasklogFields
+	// atasklogDescQuestID is the schema descriptor for quest_id field.
+	atasklogDescQuestID := atasklogFields[1].Descriptor()
+	// atasklog.DefaultQuestID holds the default value on creation for the quest_id field.
+	atasklog.DefaultQuestID = atasklogDescQuestID.Default.(uint64)
+	// atasklogDescTaskID is the schema descriptor for task_id field.
+	atasklogDescTaskID := atasklogFields[2].Descriptor()
+	// atasklog.DefaultTaskID holds the default value on creation for the task_id field.
+	atasklog.DefaultTaskID = atasklogDescTaskID.Default.(uint64)
+	// atasklogDescMid is the schema descriptor for mid field.
+	atasklogDescMid := atasklogFields[3].Descriptor()
+	// atasklog.DefaultMid holds the default value on creation for the mid field.
+	atasklog.DefaultMid = atasklogDescMid.Default.(uint64)
+	// atasklogDescMeta is the schema descriptor for meta field.
+	atasklogDescMeta := atasklogFields[4].Descriptor()
+	// atasklog.DefaultMeta holds the default value on creation for the meta field.
+	atasklog.DefaultMeta = atasklogDescMeta.Default.(string)
+	// atasklogDescMtime is the schema descriptor for mtime field.
+	atasklogDescMtime := atasklogFields[5].Descriptor()
+	// atasklog.DefaultMtime holds the default value on creation for the mtime field.
+	atasklog.DefaultMtime = atasklogDescMtime.Default.(time.Time)
+	// atasklog.UpdateDefaultMtime holds the default value on update for the mtime field.
+	atasklog.UpdateDefaultMtime = atasklogDescMtime.UpdateDefault.(func() time.Time)
+	// atasklogDescCtime is the schema descriptor for ctime field.
+	atasklogDescCtime := atasklogFields[6].Descriptor()
+	// atasklog.DefaultCtime holds the default value on creation for the ctime field.
+	atasklog.DefaultCtime = atasklogDescCtime.Default.(time.Time)
 	tgocacheFields := schema.TGoCache{}.Fields()
 	_ = tgocacheFields
 	// tgocacheDescCacheValue is the schema descriptor for cache_value field.

@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// ATaskLog is the predicate function for atasklog builders.
+type ATaskLog func(*sql.Selector)
+
 // TGoCache is the predicate function for tgocache builders.
 type TGoCache func(*sql.Selector)
 

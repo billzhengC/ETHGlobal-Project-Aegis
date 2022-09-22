@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// ATaskLog is the client for interacting with the ATaskLog builders.
+	ATaskLog *ATaskLogClient
 	// TGoCache is the client for interacting with the TGoCache builders.
 	TGoCache *TGoCacheClient
 	// TGoEns is the client for interacting with the TGoEns builders.
@@ -157,6 +159,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.ATaskLog = NewATaskLogClient(tx.config)
 	tx.TGoCache = NewTGoCacheClient(tx.config)
 	tx.TGoEns = NewTGoEnsClient(tx.config)
 	tx.TGoNFT = NewTGoNFTClient(tx.config)
@@ -171,7 +174,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: TGoCache.QueryXXX(), the query will be executed
+// applies a query, for example: ATaskLog.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

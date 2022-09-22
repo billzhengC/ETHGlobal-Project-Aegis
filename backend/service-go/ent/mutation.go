@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"aegis/ent/atasklog"
 	"aegis/ent/predicate"
 	"aegis/ent/tgocache"
 	"aegis/ent/tgoens"
@@ -27,12 +28,702 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeATaskLog      = "ATaskLog"
 	TypeTGoCache      = "TGoCache"
 	TypeTGoEns        = "TGoEns"
 	TypeTGoNFT        = "TGoNFT"
 	TypeTGoRetirement = "TGoRetirement"
 	TypeTUser         = "TUser"
 )
+
+// ATaskLogMutation represents an operation that mutates the ATaskLog nodes in the graph.
+type ATaskLogMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uint64
+	quest_id      *uint64
+	addquest_id   *int64
+	task_id       *uint64
+	addtask_id    *int64
+	mid           *uint64
+	addmid        *int64
+	meta          *string
+	mtime         *time.Time
+	ctime         *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ATaskLog, error)
+	predicates    []predicate.ATaskLog
+}
+
+var _ ent.Mutation = (*ATaskLogMutation)(nil)
+
+// atasklogOption allows management of the mutation configuration using functional options.
+type atasklogOption func(*ATaskLogMutation)
+
+// newATaskLogMutation creates new mutation for the ATaskLog entity.
+func newATaskLogMutation(c config, op Op, opts ...atasklogOption) *ATaskLogMutation {
+	m := &ATaskLogMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeATaskLog,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withATaskLogID sets the ID field of the mutation.
+func withATaskLogID(id uint64) atasklogOption {
+	return func(m *ATaskLogMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ATaskLog
+		)
+		m.oldValue = func(ctx context.Context) (*ATaskLog, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ATaskLog.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withATaskLog sets the old ATaskLog of the mutation.
+func withATaskLog(node *ATaskLog) atasklogOption {
+	return func(m *ATaskLogMutation) {
+		m.oldValue = func(context.Context) (*ATaskLog, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ATaskLogMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ATaskLogMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ATaskLog entities.
+func (m *ATaskLogMutation) SetID(id uint64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ATaskLogMutation) ID() (id uint64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ATaskLogMutation) IDs(ctx context.Context) ([]uint64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ATaskLog.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetQuestID sets the "quest_id" field.
+func (m *ATaskLogMutation) SetQuestID(u uint64) {
+	m.quest_id = &u
+	m.addquest_id = nil
+}
+
+// QuestID returns the value of the "quest_id" field in the mutation.
+func (m *ATaskLogMutation) QuestID() (r uint64, exists bool) {
+	v := m.quest_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldQuestID returns the old "quest_id" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldQuestID(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldQuestID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldQuestID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldQuestID: %w", err)
+	}
+	return oldValue.QuestID, nil
+}
+
+// AddQuestID adds u to the "quest_id" field.
+func (m *ATaskLogMutation) AddQuestID(u int64) {
+	if m.addquest_id != nil {
+		*m.addquest_id += u
+	} else {
+		m.addquest_id = &u
+	}
+}
+
+// AddedQuestID returns the value that was added to the "quest_id" field in this mutation.
+func (m *ATaskLogMutation) AddedQuestID() (r int64, exists bool) {
+	v := m.addquest_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetQuestID resets all changes to the "quest_id" field.
+func (m *ATaskLogMutation) ResetQuestID() {
+	m.quest_id = nil
+	m.addquest_id = nil
+}
+
+// SetTaskID sets the "task_id" field.
+func (m *ATaskLogMutation) SetTaskID(u uint64) {
+	m.task_id = &u
+	m.addtask_id = nil
+}
+
+// TaskID returns the value of the "task_id" field in the mutation.
+func (m *ATaskLogMutation) TaskID() (r uint64, exists bool) {
+	v := m.task_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaskID returns the old "task_id" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldTaskID(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaskID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaskID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaskID: %w", err)
+	}
+	return oldValue.TaskID, nil
+}
+
+// AddTaskID adds u to the "task_id" field.
+func (m *ATaskLogMutation) AddTaskID(u int64) {
+	if m.addtask_id != nil {
+		*m.addtask_id += u
+	} else {
+		m.addtask_id = &u
+	}
+}
+
+// AddedTaskID returns the value that was added to the "task_id" field in this mutation.
+func (m *ATaskLogMutation) AddedTaskID() (r int64, exists bool) {
+	v := m.addtask_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTaskID resets all changes to the "task_id" field.
+func (m *ATaskLogMutation) ResetTaskID() {
+	m.task_id = nil
+	m.addtask_id = nil
+}
+
+// SetMid sets the "mid" field.
+func (m *ATaskLogMutation) SetMid(u uint64) {
+	m.mid = &u
+	m.addmid = nil
+}
+
+// Mid returns the value of the "mid" field in the mutation.
+func (m *ATaskLogMutation) Mid() (r uint64, exists bool) {
+	v := m.mid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMid returns the old "mid" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldMid(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMid is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMid requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMid: %w", err)
+	}
+	return oldValue.Mid, nil
+}
+
+// AddMid adds u to the "mid" field.
+func (m *ATaskLogMutation) AddMid(u int64) {
+	if m.addmid != nil {
+		*m.addmid += u
+	} else {
+		m.addmid = &u
+	}
+}
+
+// AddedMid returns the value that was added to the "mid" field in this mutation.
+func (m *ATaskLogMutation) AddedMid() (r int64, exists bool) {
+	v := m.addmid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMid resets all changes to the "mid" field.
+func (m *ATaskLogMutation) ResetMid() {
+	m.mid = nil
+	m.addmid = nil
+}
+
+// SetMeta sets the "meta" field.
+func (m *ATaskLogMutation) SetMeta(s string) {
+	m.meta = &s
+}
+
+// Meta returns the value of the "meta" field in the mutation.
+func (m *ATaskLogMutation) Meta() (r string, exists bool) {
+	v := m.meta
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMeta returns the old "meta" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldMeta(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMeta is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMeta requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMeta: %w", err)
+	}
+	return oldValue.Meta, nil
+}
+
+// ResetMeta resets all changes to the "meta" field.
+func (m *ATaskLogMutation) ResetMeta() {
+	m.meta = nil
+}
+
+// SetMtime sets the "mtime" field.
+func (m *ATaskLogMutation) SetMtime(t time.Time) {
+	m.mtime = &t
+}
+
+// Mtime returns the value of the "mtime" field in the mutation.
+func (m *ATaskLogMutation) Mtime() (r time.Time, exists bool) {
+	v := m.mtime
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMtime returns the old "mtime" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldMtime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMtime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMtime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMtime: %w", err)
+	}
+	return oldValue.Mtime, nil
+}
+
+// ResetMtime resets all changes to the "mtime" field.
+func (m *ATaskLogMutation) ResetMtime() {
+	m.mtime = nil
+}
+
+// SetCtime sets the "ctime" field.
+func (m *ATaskLogMutation) SetCtime(t time.Time) {
+	m.ctime = &t
+}
+
+// Ctime returns the value of the "ctime" field in the mutation.
+func (m *ATaskLogMutation) Ctime() (r time.Time, exists bool) {
+	v := m.ctime
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCtime returns the old "ctime" field's value of the ATaskLog entity.
+// If the ATaskLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ATaskLogMutation) OldCtime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCtime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCtime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCtime: %w", err)
+	}
+	return oldValue.Ctime, nil
+}
+
+// ResetCtime resets all changes to the "ctime" field.
+func (m *ATaskLogMutation) ResetCtime() {
+	m.ctime = nil
+}
+
+// Where appends a list predicates to the ATaskLogMutation builder.
+func (m *ATaskLogMutation) Where(ps ...predicate.ATaskLog) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *ATaskLogMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (ATaskLog).
+func (m *ATaskLogMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ATaskLogMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.quest_id != nil {
+		fields = append(fields, atasklog.FieldQuestID)
+	}
+	if m.task_id != nil {
+		fields = append(fields, atasklog.FieldTaskID)
+	}
+	if m.mid != nil {
+		fields = append(fields, atasklog.FieldMid)
+	}
+	if m.meta != nil {
+		fields = append(fields, atasklog.FieldMeta)
+	}
+	if m.mtime != nil {
+		fields = append(fields, atasklog.FieldMtime)
+	}
+	if m.ctime != nil {
+		fields = append(fields, atasklog.FieldCtime)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ATaskLogMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case atasklog.FieldQuestID:
+		return m.QuestID()
+	case atasklog.FieldTaskID:
+		return m.TaskID()
+	case atasklog.FieldMid:
+		return m.Mid()
+	case atasklog.FieldMeta:
+		return m.Meta()
+	case atasklog.FieldMtime:
+		return m.Mtime()
+	case atasklog.FieldCtime:
+		return m.Ctime()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ATaskLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case atasklog.FieldQuestID:
+		return m.OldQuestID(ctx)
+	case atasklog.FieldTaskID:
+		return m.OldTaskID(ctx)
+	case atasklog.FieldMid:
+		return m.OldMid(ctx)
+	case atasklog.FieldMeta:
+		return m.OldMeta(ctx)
+	case atasklog.FieldMtime:
+		return m.OldMtime(ctx)
+	case atasklog.FieldCtime:
+		return m.OldCtime(ctx)
+	}
+	return nil, fmt.Errorf("unknown ATaskLog field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ATaskLogMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case atasklog.FieldQuestID:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetQuestID(v)
+		return nil
+	case atasklog.FieldTaskID:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaskID(v)
+		return nil
+	case atasklog.FieldMid:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMid(v)
+		return nil
+	case atasklog.FieldMeta:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMeta(v)
+		return nil
+	case atasklog.FieldMtime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMtime(v)
+		return nil
+	case atasklog.FieldCtime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCtime(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ATaskLog field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ATaskLogMutation) AddedFields() []string {
+	var fields []string
+	if m.addquest_id != nil {
+		fields = append(fields, atasklog.FieldQuestID)
+	}
+	if m.addtask_id != nil {
+		fields = append(fields, atasklog.FieldTaskID)
+	}
+	if m.addmid != nil {
+		fields = append(fields, atasklog.FieldMid)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ATaskLogMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case atasklog.FieldQuestID:
+		return m.AddedQuestID()
+	case atasklog.FieldTaskID:
+		return m.AddedTaskID()
+	case atasklog.FieldMid:
+		return m.AddedMid()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ATaskLogMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case atasklog.FieldQuestID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddQuestID(v)
+		return nil
+	case atasklog.FieldTaskID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTaskID(v)
+		return nil
+	case atasklog.FieldMid:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMid(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ATaskLog numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ATaskLogMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ATaskLogMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ATaskLogMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ATaskLog nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ATaskLogMutation) ResetField(name string) error {
+	switch name {
+	case atasklog.FieldQuestID:
+		m.ResetQuestID()
+		return nil
+	case atasklog.FieldTaskID:
+		m.ResetTaskID()
+		return nil
+	case atasklog.FieldMid:
+		m.ResetMid()
+		return nil
+	case atasklog.FieldMeta:
+		m.ResetMeta()
+		return nil
+	case atasklog.FieldMtime:
+		m.ResetMtime()
+		return nil
+	case atasklog.FieldCtime:
+		m.ResetCtime()
+		return nil
+	}
+	return fmt.Errorf("unknown ATaskLog field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ATaskLogMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ATaskLogMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ATaskLogMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ATaskLogMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ATaskLogMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ATaskLogMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ATaskLogMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ATaskLog unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ATaskLogMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ATaskLog edge %s", name)
+}
 
 // TGoCacheMutation represents an operation that mutates the TGoCache nodes in the graph.
 type TGoCacheMutation struct {

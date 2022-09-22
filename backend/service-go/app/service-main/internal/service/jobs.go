@@ -18,9 +18,9 @@ import (
 )
 
 const (
-	_retirementSkipCacheKey  = "retirement_nct_skip"
-	_retirementPageSize      = 1000
-	_nullAddress             = "0x0000000000000000000000000000000000000000"
+	_retirementSkipCacheKey = "retirement_nct_skip"
+	_retirementPageSize     = 1000
+	_nullAddress            = "0x0000000000000000000000000000000000000000"
 )
 
 var (
@@ -34,11 +34,11 @@ func checkCronErr(entryId cron3.EntryID, err error) {
 }
 
 func (s *MainService) initJobs() {
-	checkCronErr(s.cronUtil.AddFunc("@every 5s", s.loadRetirementData, "loadRetirementData"))
-	checkCronErr(s.cronUtil.AddFunc("@every 1h", s.loadENS, "loadENS"))
 	checkCronErr(s.cronUtil.AddFunc("@every 15s", s.loadNCTRetirementList, "loadNCTRetirementList", cron.PreLoad()))
 	checkCronErr(s.cronUtil.AddFunc("@every 5s", s.loadAddressToTUserMap, "loadAddressToTUserMap", cron.PreLoad()))
 	checkCronErr(s.cronUtil.AddFunc("@every 15s", s.loadAddressToEnsMap, "loadAddressToEnsMap", cron.PreLoad()))
+	checkCronErr(s.cronUtil.AddFunc("@every 5s", s.loadRetirementData, "loadRetirementData", cron.PreLoad()))
+	checkCronErr(s.cronUtil.AddFunc("@every 1h", s.loadENS, "loadENS"))
 }
 
 func (s *MainService) getNCTRedeemTokenList(ctx context.Context) (tokenList []string, err error) {
@@ -109,9 +109,10 @@ func (s *MainService) loadRetirementData(ctx context.Context) (err error) {
 		log.Errorc(ctx, "[loadRetirementData] GetRetirementList error: %+v", err)
 		return err
 	}
-
+	var allRetirementList []graph.GetRetirementListRetirementsRetirement
 	addressMap := make(map[string]struct{}) // save all unique address for ens and profile check
 	for len(retirementList.GetRetirements()) > 0 {
+		allRetirementList = append(allRetirementList, retirementList.GetRetirements()...)
 		err = s.data.WithTx(ctx, func(tx *ent.Tx) (err error) {
 			var tGoRetirementCreates []*ent.TGoRetirementCreate
 			for _, retirement := range retirementList.GetRetirements() {
@@ -180,6 +181,9 @@ func (s *MainService) loadRetirementData(ctx context.Context) (err error) {
 			log.Errorc(ctx, "[loadRetirementData] checkAndSaveENS error: %+v", err)
 		}
 	}
+
+	// check and save toucan nct retirement task progress
+	s.checkAndSaveToucanNCTRetirement(ctx, allRetirementList)
 	return
 }
 

@@ -8,6 +8,19 @@ import (
 	"fmt"
 )
 
+// The ATaskLogFunc type is an adapter to allow the use of ordinary
+// function as ATaskLog mutator.
+type ATaskLogFunc func(context.Context, *ent.ATaskLogMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ATaskLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ATaskLogMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ATaskLogMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The TGoCacheFunc type is an adapter to allow the use of ordinary
 // function as TGoCache mutator.
 type TGoCacheFunc func(context.Context, *ent.TGoCacheMutation) (ent.Value, error)

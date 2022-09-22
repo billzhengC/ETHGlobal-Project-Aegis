@@ -9,6 +9,22 @@ import (
 )
 
 var (
+	// ATaskLogsColumns holds the columns for the "a_task_logs" table.
+	ATaskLogsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint64, Increment: true},
+		{Name: "quest_id", Type: field.TypeUint64, Default: 0},
+		{Name: "task_id", Type: field.TypeUint64, Default: 0},
+		{Name: "mid", Type: field.TypeUint64, Default: 0},
+		{Name: "meta", Type: field.TypeString, Default: ""},
+		{Name: "mtime", Type: field.TypeTime},
+		{Name: "ctime", Type: field.TypeTime},
+	}
+	// ATaskLogsTable holds the schema information for the "a_task_logs" table.
+	ATaskLogsTable = &schema.Table{
+		Name:       "a_task_logs",
+		Columns:    ATaskLogsColumns,
+		PrimaryKey: []*schema.Column{ATaskLogsColumns[0]},
+	}
 	// TGoCachesColumns holds the columns for the "t_go_caches" table.
 	TGoCachesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint64, Increment: true},
@@ -99,6 +115,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ATaskLogsTable,
 		TGoCachesTable,
 		TGoEnsTable,
 		TGoNftsTable,
@@ -108,6 +125,11 @@ var (
 )
 
 func init() {
+	ATaskLogsTable.Annotation = &entsql.Annotation{
+		Table:     "a_task_logs",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_0900_ai_ci",
+	}
 	TGoCachesTable.Annotation = &entsql.Annotation{
 		Table: "t_go_caches",
 	}

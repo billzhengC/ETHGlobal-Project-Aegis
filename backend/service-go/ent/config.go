@@ -24,6 +24,7 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
+	ATaskLog      []ent.Hook
 	TGoCache      []ent.Hook
 	TGoEns        []ent.Hook
 	TGoNFT        []ent.Hook

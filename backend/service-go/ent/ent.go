@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"aegis/ent/atasklog"
 	"aegis/ent/tgocache"
 	"aegis/ent/tgoens"
 	"aegis/ent/tgonft"
@@ -35,6 +36,7 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
+		atasklog.Table:      atasklog.ValidColumn,
 		tgocache.Table:      tgocache.ValidColumn,
 		tgoens.Table:        tgoens.ValidColumn,
 		tgonft.Table:        tgonft.ValidColumn,
