@@ -12,6 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"net/http"
 	"os"
+	"sync"
+	"sync/atomic"
 )
 
 type MainService struct {
@@ -25,10 +27,16 @@ type MainService struct {
 	ethereumClient    *ethclient.Client
 	polygonClient     *ethclient.Client
 	toucanGraphClient graphql.Client
+
+	nctRetirementList      atomic.Value
+	addressToTUserMap      atomic.Value
+	addressToEnsMap        atomic.Value
+	addressToIsContractMap sync.Map
 }
 
 const (
-	toucanSubgraphUrl = "https://api.thegraph.com/subgraphs/name/toucanprotocol/matic" // Toucan Subgraph: https://thegraph.com/hosted-service/subgraph/toucanprotocol/matic
+	toucanMaticSubgraphUrl  = "https://api.thegraph.com/subgraphs/name/toucanprotocol/matic"  // Toucan Subgraph: https://thegraph.com/hosted-service/subgraph/toucanprotocol/matic
+	toucanMumbaiSubgraphUrl = "https://api.thegraph.com/subgraphs/name/toucanprotocol/mumbai" // Toucan Subgraph: https://thegraph.com/hosted-service/subgraph/toucanprotocol/mumbai
 )
 
 func NewMainService(uc *biz.MainUseCase, data *data.Data) (s *MainService) {
@@ -49,7 +57,7 @@ func NewMainService(uc *biz.MainUseCase, data *data.Data) (s *MainService) {
 		cronUtil:          cron.NewCron(),
 		ethereumClient:    ethereumClient,
 		polygonClient:     polygonClient,
-		toucanGraphClient: graphql.NewClient(toucanSubgraphUrl, http.DefaultClient),
+		toucanGraphClient: graphql.NewClient(toucanMumbaiSubgraphUrl, http.DefaultClient),
 	}
 
 	// init cron jobs
