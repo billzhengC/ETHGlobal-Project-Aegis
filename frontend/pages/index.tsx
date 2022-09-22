@@ -1,11 +1,14 @@
 import Layout from "@components/common/layout";
-import type { NextPage } from "next";
+import QuestDisplay from "@components/quest/questDisplay";
+
 import { ReactElement } from "react";
 import { NextPageWithLayout } from "./_app";
 
-const Home: NextPageWithLayout = () => {
-  return <div className="text-amber-800">Project Aegis is here</div>;
-};
+const Home: NextPageWithLayout = () => (
+  <div>
+    <QuestDisplay />
+  </div>
+);
 
 Home.getLayout = (page: ReactElement) => {
   return <Layout>{page}</Layout>;
