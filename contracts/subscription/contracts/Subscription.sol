@@ -27,7 +27,7 @@ contract Subscription is Ownable {
         return ECDSA.recover(messageDigest, signature);
     }
 
-    // Change the subscribtion of the notification
+    // Change the subscription of the notification
     function change(
         address _channel,
         address _subscriber,
@@ -46,7 +46,7 @@ contract Subscription is Ownable {
         emit SubscriptionStatus(_channel, _subscriber, _status);
     }
 
-    // Get the subsciption status
+    // Get the subscription status
     function check(address _channel, address _subscriber)
         public
         view
