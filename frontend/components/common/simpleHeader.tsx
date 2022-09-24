@@ -60,7 +60,7 @@ export default function SimpleHeader() {
                 })}
               </div>
 
-              <button
+              {/* <button
                 type="button"
                 className="inline-flex items-center px-3.5 my-2 border border-transparent text-sm leading-4 font-medium rounded-full shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
                 onClick={() => {
@@ -68,7 +68,7 @@ export default function SimpleHeader() {
                 }}
               >
                 {actionButton.name}
-              </button>
+              </button> */}
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 {/* Profile dropdown */}
                 {user ? (

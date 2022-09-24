@@ -1,43 +1,190 @@
 import Layout from "@components/common/layout";
 import { useRouter } from "next/router";
-import { Image } from "@mantine/core";
+import { DateTime } from "luxon";
+import Image from "next/image";
 
-import { ReactElement, useMemo } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
+import { useCommonContext } from "@contexts/commonContextProvider";
+import useABC from "@lib/common/abc";
+import { useSetState } from "@mantine/hooks";
 
-const exampleData = {
-  title: "NCT Retirement Competition",
-  description: "Retire NCT now and get exclusive NFTs",
-  host: "Toucan",
-  start_time: "",
-  end_time: "",
-  contract: "",
-  eligibility: "Retire at least 1 NCT",
-};
+const exampleData = [
+  {
+    title: "Carbon Retirement Competition 🔥",
+    description: `Let's challenge each other on how much we can offset our carbon footprint. Retire Nature Carbon Tonne (NCT) now and get exclusive NFTs.`,
+    space: "Toucan Protocol",
+    start_time: DateTime.utc(2022, 9, 24),
+    end_time: DateTime.utc(2022, 10, 1),
+    contract: "",
+    eligibility: (
+      <div>
+        Retire at least 1 ton of carbon at{" "}
+        <a
+          href="https://toucan.earth"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          toucan.earth
+        </a>
+      </div>
+    ),
+    instructions: (
+      <div>
+        1. Buy NCT on SushiSwap <br />
+        2. Go to{" "}
+        <a
+          href="https://toucan.earth"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          toucan.earth
+        </a>
+        , launch the app and retire to offset <br />* This is still a Testnet
+        operation, so you can get NCT on Mumbai{" "}
+        <a
+          href="https://tco-2-faucet-ui.vercel.app/"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          here
+        </a>
+      </div>
+    ),
+
+    imageUrl: "/images/save-earth.jpg",
+  },
+];
 
 export default function QuestID() {
   const router = useRouter();
-  const questID = useMemo(() => {
-    if (router.isReady) {
-      return router.query.id;
-    }
-  }, [router.isReady, router.query.id]);
+  const questID = parseInt(
+    useMemo(() => {
+      if (router.isReady) {
+        return router.query.id;
+      }
+    }, [router.isReady, router.query.id]) as string
+  );
+
+  const { user } = useCommonContext();
+  const { call } = useABC();
+  const [isTaskCompleted, setIsTaskCompleted] = useState(false);
+  const [isClaimed, setIsClaimed] = useState(false);
+
+  interface TaskCompletionResp {
+    meta: string;
+  }
+
+  useEffect(() => {
+    if (!user || !questID) return;
+    const checkTaskCompletion = async () => {
+      const resp = await call<TaskCompletionResp>({
+        method: "get",
+        path: "/quest/completion_status",
+        params: {
+          address: user?.wallet_pub,
+          quest: questID.toString(),
+        },
+      });
+
+      if (resp == null || resp.meta === "") {
+        alert("Not completed");
+      } else {
+        alert(`Success: ${resp.meta}`);
+        setIsTaskCompleted(true);
+      }
+      console.log(resp);
+    };
+    checkTaskCompletion();
+  }, [questID, user]);
 
   return (
-    <div className="py-10 px-10">
-      <div className="text-lg">{exampleData.title}</div>
-      <div>{exampleData.description}</div>
-      <Image
-        src="https://images.unsplash.com/photo-1586980088852-088b1cd6c8eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
-        height={300}
-        alt="Carbon retirement"
-      />
-      <div>Eligibility: {exampleData.eligibility}</div>
-      <button
-        type="button"
-        className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      >
-        Claim NFT
-      </button>
+    <div className="max-w-7xl mx-auto py-10 px-10">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="h-60 relative">
+          <Image
+            src={exampleData[questID - 1]?.imageUrl}
+            alt="Carbon retirement"
+            layout="fill"
+            objectFit="cover"
+          />
+        </div>
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">
+            {exampleData[questID - 1]?.title}
+          </h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            {exampleData[questID - 1]?.description}
+          </p>
+        </div>
+        <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+            <div className="sm:col-span-1">
+              <dt className="text-sm font-medium text-gray-500">Start time</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {exampleData[questID - 1]?.start_time.toLocaleString(
+                  DateTime.DATETIME_FULL
+                )}
+              </dd>
+            </div>
+            <div className="sm:col-span-1">
+              <dt className="text-sm font-medium text-gray-500">End time</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {exampleData[questID - 1]?.end_time.toLocaleString(
+                  DateTime.DATETIME_FULL
+                )}
+              </dd>
+            </div>
+            <div className="sm:col-span-1">
+              <dt className="text-sm font-medium text-gray-500">Space</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {exampleData[questID - 1]?.space}
+              </dd>
+            </div>
+            {/* <div className="sm:col-span-1">
+              <dt className="text-sm font-medium text-gray-500">
+                Name
+              </dt>
+              <dd className="mt-1 text-sm text-gray-900"></dd>
+            </div> */}
+            <div className="sm:col-span-2">
+              <dt className="text-sm font-medium text-gray-500">Eligibility</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {exampleData[questID - 1]?.eligibility}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-sm font-medium text-gray-500">
+                Instructions
+              </dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {exampleData[questID - 1]?.instructions}
+              </dd>
+            </div>
+
+            {isTaskCompleted ? (
+              isClaimed ? (
+                <button
+                  type="button"
+                  className="sm:col-span-2 disabled selection:inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-gray-200 opacity-50 bg-gray-500 cursor-not-allowed"
+                >
+                  You have already claimed
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="sm:col-span-2 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Claim your NFT
+                </button>
+              )
+            ) : (
+              <button
+                type="button"
+                className="sm:col-span-2 disabled selection:inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-gray-200 opacity-50 bg-gray-500 cursor-not-allowed"
+              >
+                You are not eligible
+              </button>
+            )}
+          </dl>
+        </div>
+      </div>
     </div>
   );
 }
