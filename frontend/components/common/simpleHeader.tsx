@@ -1,5 +1,7 @@
+import { useCommonContext } from "@contexts/commonContextProvider";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import useABC from "@lib/common/abc";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -27,9 +29,8 @@ function classNames(...classes: string[]) {
 export default function SimpleHeader() {
   const router = useRouter();
   const path = useMemo(() => router.pathname, [router.pathname]);
-  //   const { user } = useCommonContext();
-  // TODO
-  const user = { face: null, uname: "" };
+  const { login, logout } = useABC();
+  const { user } = useCommonContext();
 
   return (
     <Disclosure as="nav" className="bg-white shadow-sm z-10">
@@ -41,7 +42,7 @@ export default function SimpleHeader() {
               <div className="relative flex-1 hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                 {navigation.map((item) => {
                   return (
-                    <Link href={item.href}>
+                    <Link key={item.name} href={item.href}>
                       <a
                         key={item.name}
                         className={classNames(
@@ -119,7 +120,7 @@ export default function SimpleHeader() {
                                       "block w-full px-4 py-2 text-left text-sm text-gray-700"
                                     )}
                                     onClick={() => {
-                                      //   logout();
+                                      logout();
                                     }}
                                   >
                                     {item.name}
@@ -152,7 +153,7 @@ export default function SimpleHeader() {
                   <>
                     <button
                       onClick={() => {
-                        // login();
+                        login();
                       }}
                       type="button"
                       className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-amber-500"
@@ -250,7 +251,7 @@ export default function SimpleHeader() {
                           as="button"
                           className="block w-full px-4 py-2 text-left text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                           onClick={() => {
-                            // logout();
+                            logout();
                           }}
                         >
                           {item.name}
@@ -274,7 +275,7 @@ export default function SimpleHeader() {
                     as="button"
                     className="block w-full px-4 py-2 text-left text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                     onClick={() => {
-                      //   login();
+                      login();
                     }}
                   >
                     Connect Wallet

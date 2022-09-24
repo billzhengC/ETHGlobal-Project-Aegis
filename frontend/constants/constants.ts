@@ -19,3 +19,6 @@ export const LOGIN_MESSAGE_PREFIX =
 export const POLYGON_MUMBAI_RPC_URL =
   "https://polygon-mumbai.g.alchemy.com/v2/9augb8rZZ1c9rR_0voZWbn_ntnJk13_S";
 export const POLYGON_MUMBAI_CHAIN_ID = 80001;
+
+export const SUBSCRIPTION_CONTRACT =
+  "0x93038021dC1728bBCFE443428bE14d9CCE3cE007"; // subscription contract
