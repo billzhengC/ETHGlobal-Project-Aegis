@@ -46,11 +46,46 @@ model t_go_retirements {
   token_address       String   @default("") @db.VarChar(255)
   token_name          String   @default("") @db.VarChar(255)
   token_type          String   @default("") @db.VarChar(255)
-  retirement_message  String   @default(dbgenerated("(_utf8mb4\\'\\')")) @db.Text
+  retirement_message  String   @db.Text
   retirement_time     DateTime @default(dbgenerated("'0001-01-01 00:00:00'")) @db.DateTime(0)
   mtime               DateTime @default(now()) @db.DateTime(0)
   ctime               DateTime @default(now()) @db.DateTime(0)
 
   @@index([beneficiary_address], map: "ix_beneficiary_address")
   @@index([mtime], map: "ix_mtime")
+}
+
+model a_quests {
+  id    BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  meta  String   @db.Text
+  mtime DateTime @default(now()) @db.DateTime(0)
+  ctime DateTime @default(now()) @db.DateTime(0)
+
+  @@index([mtime], map: "ix_mtime")
+}
+
+model a_task_logs {
+  id       BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  quest_id BigInt   @db.UnsignedBigInt
+  task_id  BigInt   @db.UnsignedBigInt
+  mid      BigInt   @db.UnsignedBigInt
+  meta     String   @db.Text
+  mtime    DateTime @default(now()) @db.DateTime(0)
+  ctime    DateTime @default(now()) @db.DateTime(0)
+
+  @@index([mid], map: "ix_mid")
+  @@index([mtime], map: "ix_mtime")
+  @@index([quest_id], map: "ix_quest_id")
+  @@index([task_id], map: "ix_task_id")
+}
+
+model a_tasks {
+  id       BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  quest_id BigInt   @db.UnsignedBigInt
+  meta     String   @db.Text
+  mtime    DateTime @default(now()) @db.DateTime(0)
+  ctime    DateTime @default(now()) @db.DateTime(0)
+
+  @@index([mtime], map: "ix_mtime")
+  @@index([quest_id], map: "ix_quest_id")
 }
