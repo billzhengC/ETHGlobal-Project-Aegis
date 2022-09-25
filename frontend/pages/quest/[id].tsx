@@ -2,11 +2,11 @@ import Layout from "@components/common/layout";
 import { useRouter } from "next/router";
 import { DateTime } from "luxon";
 import Image from "next/image";
-
 import { ReactElement, useEffect, useMemo, useState } from "react";
 import { useCommonContext } from "@contexts/commonContextProvider";
 import useABC from "@lib/common/abc";
-import { useSetState } from "@mantine/hooks";
+import { MintBadgeResp } from "pages/api/quest/mintBadge";
+import { CompletionStatusResp } from "pages/api/quest/completion_status";
 
 const exampleData = [
   {
@@ -37,7 +37,7 @@ const exampleData = [
         >
           toucan.earth
         </a>
-        , launch the app and retire to offset <br />* This is still a Testnet
+        , launch the app and retire to offset <br />* This is still a testnet
         operation, so you can get NCT on Mumbai{" "}
         <a
           href="https://tco-2-faucet-ui.vercel.app/"
@@ -48,8 +48,49 @@ const exampleData = [
       </div>
     ),
 
-    imageUrl: "/images/save-earth.jpg",
+    imageUrl: "/images/quest1.jpg",
   },
+  {
+    title: "Next-level Carbon Retirement Competition 🔥🔥",
+    description: `Retire Carbon for 6 weeks straight and get exclusive NFTs.`,
+    space: "Toucan Protocol",
+    start_time: DateTime.utc(2022, 9, 24),
+    end_time: DateTime.utc(2023, 1, 1),
+    contract: "",
+    eligibility: (
+      <div>
+        Retire at least 1 ton of carbon EVERY WEEK by the end of 2022 at{" "}
+        <a
+          href="https://toucan.earth"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          toucan.earth
+        </a>
+      </div>
+    ),
+    instructions: (
+      <div>
+        1. Buy NCT on SushiSwap <br />
+        2. Go to{" "}
+        <a
+          href="https://toucan.earth"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          toucan.earth
+        </a>
+        , launch the app and retire to offset <br />* This is still a testnet
+        operation, so you can get NCT on Mumbai{" "}
+        <a
+          href="https://tco-2-faucet-ui.vercel.app/"
+          className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+        >
+          here
+        </a>
+      </div>
+    ),
+
+    imageUrl: "/images/quest2.jpg",
+  }
 ];
 
 export default function QuestID() {
@@ -67,32 +108,38 @@ export default function QuestID() {
   const [isTaskCompleted, setIsTaskCompleted] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
 
-  interface TaskCompletionResp {
-    meta: string;
-  }
-
   useEffect(() => {
     if (!user || !questID) return;
     const checkTaskCompletion = async () => {
-      const resp = await call<TaskCompletionResp>({
+      const resp = await call<CompletionStatusResp>({
         method: "get",
         path: "/quest/completion_status",
         params: {
-          address: user?.wallet_pub,
           quest: questID.toString(),
         },
       });
 
-      if (resp == null || resp.meta === "") {
-        alert("Not completed");
-      } else {
-        alert(`Success: ${resp.meta}`);
-        setIsTaskCompleted(true);
-      }
+      setIsTaskCompleted(resp?.isCompleted);
+      setIsClaimed(resp?.isClaimed);
+
       console.log(resp);
     };
     checkTaskCompletion();
   }, [questID, user]);
+
+  const claimNFT = async () => {
+    const resp = await call<MintBadgeResp>({
+      method: "post",
+      path: "/quest/mintBadge",
+      params: {
+        quest: questID.toString(),
+      },
+    });
+
+    if (resp?.hash) {
+      alert(`Mint success. Tx is ${resp?.hash}`);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-10">
@@ -100,6 +147,7 @@ export default function QuestID() {
         <div className="h-60 relative">
           <Image
             src={exampleData[questID - 1]?.imageUrl}
+            priority
             alt="Carbon retirement"
             layout="fill"
             objectFit="cover"
@@ -170,6 +218,7 @@ export default function QuestID() {
                 <button
                   type="button"
                   className="sm:col-span-2 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                  onClick={claimNFT}
                 >
                   Claim your NFT
                 </button>

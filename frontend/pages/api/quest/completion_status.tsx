@@ -1,55 +1,42 @@
 import { NextApiResponse } from "next";
 import { ApiRequest } from "@model/model";
 import verify from "@lib/api/middlewares/verify";
-import logger from "@lib/common/logger";
 import Joi from "joi";
-import prisma from "@lib/common/prisma";
+import auth from "@lib/api/middlewares/auth";
+import error from "@lib/api/middlewares/error";
+import { getTasklogsAndCheckStatus } from "@lib/api/quest/questUtil";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
 
-export interface ProfileGetReq {
-  address: string;
+export interface CompletionStatusResp {
+  meta: string;
+  isCompleted: boolean;
+  isClaimed: boolean;
+}
+export interface CompletionStatusReq {
   quest: number;
 }
 
 const paramsSchema = Joi.object({
-  address: Joi.string().required(),
   quest: Joi.number().integer().min(1).required(),
 });
 
 const handler = async (
-  req: ApiRequest<ProfileGetReq, null>,
-  resp: NextApiResponse
+  req: ApiRequest<CompletionStatusReq, null>,
+  resp: NextApiResponse<CompletionStatusResp>
 ) => {
-  try {
-    const walletPub = req.params.address.toLowerCase();
-    const userSelected = await prisma.t_users.findUnique({
-      where: { wallet_pub: walletPub },
-    });
+  const walletPub = req.user?.wallet_pub.toLowerCase();
 
-    const tasklogsItem = await prisma.a_task_logs.findFirst({
-      where: {
-        AND: {
-          quest_id: req.params.quest,
-          mid: userSelected.id,
-        },
-      },
-    });
+  const { tasklogsItem, isCompleted, isClaimed } =
+    await getTasklogsAndCheckStatus(walletPub, req.params.quest);
 
-    resp.status(200).json({meta: tasklogsItem?.meta || ""});
-  } catch (e) {
-    if (resp.statusCode === 200) {
-      logger.errorc(
-        req,
-        `mid: ${req.user.mid}, has unexpected error: ${e.stack}`
-      );
-      resp.statusCode = 500;
-    }
-    resp.json({ msg: "unexpected error" });
-    return;
-  }
+  resp.status(200).json({
+    meta: tasklogsItem?.meta || "",
+    isCompleted: isCompleted,
+    isClaimed: isClaimed,
+  });
 };
 
-export default verify(handler, { method: "get", paramsSchema });
+export default auth(verify(error(handler), { method: "get", paramsSchema }));

@@ -23,6 +23,7 @@ export interface TokenPayload {
   uname?: string; // name
   face?: string; // avatar
   gender?: number; // gender 0 secret 1 female 2 male
+  meta?: string; // temp use for minting related info
   last_login_time?: string; // last login time
 }
 
