@@ -3,9 +3,11 @@ import XmtpContext from "@contexts/xmtp";
 import { Menu, Transition } from "@headlessui/react";
 import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
 import {
+  ChevronDoubleUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   DotsVerticalIcon,
+  XIcon,
 } from "@heroicons/react/solid";
 import useABC from "@lib/common/abc";
 import { XmtpMessage } from "@model/model";
@@ -41,6 +43,7 @@ const Messages: NextPageWithLayout = () => {
     useContext(XmtpContext);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Array<XmtpMessage>>([]);
+  const [selectedMessage, setSelectedMessage] = useState<XmtpMessage>();
   const handleConnect = useCallback(async () => {
     await login();
     initClient(signer);
@@ -126,29 +129,40 @@ const Messages: NextPageWithLayout = () => {
                   <div className="px-4 sm:px-6 lg:px-8">
                     <div className="py-3 flex justify-between">
                       {/* Right buttons */}
-                      <nav aria-label="Pagination">
-                        <span className="relative z-0 inline-flex shadow-sm rounded-md">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
-                          >
-                            <span className="sr-only">Next</span>
-                            <ChevronUpIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
-                          </a>
-                          <a
-                            href="#"
-                            className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
-                          >
-                            <span className="sr-only">Previous</span>
-                            <ChevronDownIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
-                          </a>
-                        </span>
+                      <nav aria-label="Pagination" className="w-full">
+                        <div className="w-full flex justify-between">
+                          <span className="relative z-0 inline-flex shadow-sm rounded-md">
+                            <a
+                              href="#"
+                              className="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                            >
+                              <span className="sr-only">Next</span>
+                              <ChevronUpIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </a>
+                            <a
+                              href="#"
+                              className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                            >
+                              <span className="sr-only">Previous</span>
+                              <ChevronDownIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </a>
+                          </span>
+                          <span className="relative z-0 inline-flex shadow-sm rounded-md">
+                            <a
+                              className="-ml-px relative inline-flex items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                              onClick={() => setOpen(false)}
+                            >
+                              <span className="sr-only">Close</span>
+                              <XIcon className="h-5 w-5" aria-hidden="true" />
+                            </a>
+                          </span>
+                        </div>
                       </nav>
                     </div>
                   </div>
@@ -164,17 +178,14 @@ const Messages: NextPageWithLayout = () => {
                         id="message-heading"
                         className="text-lg font-medium text-gray-900"
                       >
-                        {messageDisplay.subject}
+                        {selectedMessage.title}
                       </h1>
                       <p className="mt-1 text-sm text-gray-500 truncate">
-                        {messageDisplay.sender}
+                        {selectedMessage.from}
                       </p>
                     </div>
 
                     <div className="mt-4 flex items-center justify-between sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:justify-start">
-                      <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
-                        {messageDisplay.status}
-                      </span>
                       <Menu
                         as="div"
                         className="ml-3 relative inline-block text-left"
@@ -257,7 +268,7 @@ const Messages: NextPageWithLayout = () => {
                   role="list"
                   className="py-4 space-y-2 sm:px-6 sm:space-y-4 lg:px-8"
                 >
-                  {`Details on next quest / community events`}
+                  {selectedMessage.content}
                 </ul>
               </div>
             </section>
@@ -296,8 +307,11 @@ const Messages: NextPageWithLayout = () => {
                         <div className="flex justify-between space-x-3">
                           <div className="min-w-0 flex-1">
                             <a
-                              href="#" // TODO: link to message detail
                               className="block focus:outline-none"
+                              onClick={() => {
+                                setSelectedMessage(message);
+                                setOpen(true);
+                              }}
                             >
                               <span
                                 className="absolute inset-0"
