@@ -54,4 +54,17 @@ contract Subscription is Ownable {
     {
         return subscriptionTracker[_channel][_subscriber];
     }
+
+    // Get multiple subscription status of given address list
+    function checkMulti(address _channel, address[] memory _subscriberList)
+        public
+        view
+        returns (bool[] memory)
+    {
+        bool[] memory resp = new bool[](_subscriberList.length);
+        for (uint256 i = 0; i < _subscriberList.length; i++) {
+            resp[i] = subscriptionTracker[_channel][_subscriberList[i]];
+        }
+        return resp;
+    }
 }
