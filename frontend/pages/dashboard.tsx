@@ -21,33 +21,6 @@ const subNavigation = [
   { name: "Messaging", href: "#", icon: BellIcon, current: true },
 ];
 
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  {
-    name: "22 Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  {
-    name: "33 Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  {
-    name: "44 Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  // More people...
-];
 const Dashboard: NextPageWithLayout = () => {
   const { call } = useABC();
 
@@ -65,7 +38,7 @@ const Dashboard: NextPageWithLayout = () => {
         },
       });
 
-      setUserList(resp.userList);
+      setUserList(resp?.userList);
 
       //   console.log(resp);
     };
@@ -80,7 +53,7 @@ const Dashboard: NextPageWithLayout = () => {
 
   useEffect(() => {
     const isIndeterminate =
-      selectedList.length > 0 && selectedList.length < people.length;
+      selectedList.length > 0 && selectedList.length < userList.length;
     setChecked(selectedList.length === userList?.length);
     setIndeterminate(isIndeterminate);
     checkbox.current.indeterminate = isIndeterminate;
