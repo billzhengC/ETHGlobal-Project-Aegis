@@ -119,7 +119,7 @@ export default function QuestID() {
 
   const { user } = useCommonContext();
   const { call } = useABC();
-  const [isTaskCompleted, setIsTaskCompleted] = useState(true);
+  const [isTaskCompleted, setIsTaskCompleted] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
 
   const { setLoading } = useLoading();
@@ -221,9 +221,9 @@ export default function QuestID() {
     }, 2000);
   };
 
-  useEffect(() => {
-    checkStatus();
-  }, []);
+  // useEffect(() => {
+  //   checkStatus();
+  // }, []);
   const checkStatus = async () => {
     const resp1 = await call<NotificationCheckResp>({
       method: "get",
@@ -232,7 +232,7 @@ export default function QuestID() {
         channel: "0xE08ee60D8fCEABE51159eC11B0211E8242E9D53D",
       },
     });
-    setSubscriptionStatus(resp1.status);
+    setSubscriptionStatus(resp1?.status);
   };
 
   const claimNFT = async () => {
