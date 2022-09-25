@@ -24,4 +24,4 @@ export const SUBSCRIPTION_CONTRACT =
   "0xF50C4018fA77B44a0B1A05f55b87a67E2B417d72"; // subscription contract
 
 export const MUMBAI_BADGE_MINT_CONTRACT =
-  "0x5EC17891a9E04c30f9F51913757989Ea95Bc9EbB"; // contract to mint nft badge
+  "0x4219B296e8992559E4dA079eE24815AAAf537d34"; // contract to mint nft badge; production: 0x4219B296e8992559E4dA079eE24815AAAf537d34
