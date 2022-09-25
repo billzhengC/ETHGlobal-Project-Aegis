@@ -88,8 +88,12 @@ const Dashboard: NextPageWithLayout = () => {
         content: message,
       },
     });
-    alert("Send Status: " + resp.msg);
+    alert("Send Status: " + resp?.msg);
     setOpen(false);
+    if (resp?.msg) {
+      setTitle("");
+      setMessage("");
+    }
   };
 
   return (

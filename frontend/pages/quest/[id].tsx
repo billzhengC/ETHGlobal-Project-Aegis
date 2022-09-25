@@ -128,22 +128,23 @@ export default function QuestID() {
   const [sendStatus, setSendStatus] = useState<string>("");
   const timerRef = useRef<NodeJS.Timer>();
 
+  const checkTaskCompletion = async () => {
+    const resp = await call<CompletionStatusResp>({
+      method: "get",
+      path: "/quest/completion_status",
+      params: {
+        quest: questID.toString(),
+      },
+    });
+
+    setIsTaskCompleted(resp?.isCompleted);
+    setIsClaimed(resp?.isClaimed);
+
+    console.log(resp);
+  };
   useEffect(() => {
     if (!user || !questID) return;
-    const checkTaskCompletion = async () => {
-      const resp = await call<CompletionStatusResp>({
-        method: "get",
-        path: "/quest/completion_status",
-        params: {
-          quest: questID.toString(),
-        },
-      });
 
-      setIsTaskCompleted(resp?.isCompleted);
-      setIsClaimed(resp?.isClaimed);
-
-      console.log(resp);
-    };
     checkTaskCompletion();
   }, [questID, user]);
 
@@ -247,6 +248,7 @@ export default function QuestID() {
     if (resp?.hash) {
       alert(`Mint success. Tx is ${resp?.hash}`);
     }
+    checkTaskCompletion();
     setOpenSubscribeButton(true);
   };
 
