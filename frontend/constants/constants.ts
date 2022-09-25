@@ -22,3 +22,6 @@ export const POLYGON_MUMBAI_CHAIN_ID = 80001;
 
 export const SUBSCRIPTION_CONTRACT =
   "0x93038021dC1728bBCFE443428bE14d9CCE3cE007"; // subscription contract
+
+export const MUMBAI_BADGE_MINT_CONTRACT =
+"0x5EC17891a9E04c30f9F51913757989Ea95Bc9EbB"; // contract to mint nft badge

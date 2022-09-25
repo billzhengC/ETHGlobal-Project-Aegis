@@ -46,6 +46,7 @@ export const setTokenCookie = (resp: NextApiResponse, user: t_users) => {
     face: user.face,
     gender: user.gender,
     twitter: user.twitter,
+    meta: user.meta,
     last_login_time: DateTime.fromJSDate(user.last_login_time).toFormat(
       "yyyy-MM-dd HH:mm:ss"
     ),
