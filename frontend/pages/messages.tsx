@@ -87,9 +87,11 @@ const Messages: NextPageWithLayout = () => {
             const xmtpMessage = JSON.parse(message.content) as XmtpMessage;
             xmtpMessage.id = message.id;
             if (
-              xmtpMessage.from === "0xe08ee60d8fceabe51159ec11b0211e8242e9d53d"
+              xmtpMessage.from ===
+                "0xe08ee60d8fceabe51159ec11b0211e8242e9d53d" ||
+              xmtpMessage.from === "0xd81b2605ea329d7eae196f5a0e9f3411527902f7"
             ) {
-              xmtpMessage.from = "Toucan Community";
+              xmtpMessage.from = "Carbon Retirement Challenge";
             }
             xmtpMessage.timestamp = DateTime.fromMillis(
               message.header.timestamp.toNumber()

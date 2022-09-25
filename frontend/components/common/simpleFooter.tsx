@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SVGProps } from "react";
 
 const navigation = [
@@ -46,12 +47,11 @@ export default function SimpleFooter() {
             Project Aegis{" "}
             <span className="font-normal">
               (
-              <a
-                href="/messages"
-                className="text-blue-500 hover:text-blue-400 italic underline"
-              >
-                Message Service
-              </a>{" "}
+              <Link href="/messages">
+                <a className="text-blue-500 hover:text-blue-400 italic underline">
+                  Message Service
+                </a>
+              </Link>{" "}
               Powered by{" "}
               <a
                 href="https://xmtp.com/"

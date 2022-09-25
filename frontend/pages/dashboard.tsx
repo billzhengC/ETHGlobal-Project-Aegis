@@ -2,14 +2,11 @@ import Layout from "@components/common/layout";
 import { Dialog, Transition } from "@headlessui/react";
 import { BellIcon, CogIcon } from "@heroicons/react/outline";
 import useABC from "@lib/common/abc";
-import { DateTime } from "luxon";
 import {
   Fragment,
   ReactElement,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
+  useEffect, useRef,
+  useState
 } from "react";
 import { NotificationSendResp } from "./api/notification/send";
 import { GetAllUsersResp, userItem } from "./api/quest/get_all_users";
@@ -73,9 +70,10 @@ const Dashboard: NextPageWithLayout = () => {
       //   console.log(resp);
     };
     getAllUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkbox = useRef();
+  const checkbox = useRef({} as any);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedList, setSelectedList] = useState<userItem[]>([]);
