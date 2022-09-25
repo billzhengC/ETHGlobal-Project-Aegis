@@ -69,10 +69,10 @@ const Messages: NextPageWithLayout = () => {
         }
       }
       newMessages.sort((a: XmtpMessage, b: XmtpMessage) => {
-        if (a > b) {
-          return 1;
+        if (a.timestamp > b.timestamp) {
+          return -1;
         }
-        return -1;
+        return 1;
       });
       setMessages(newMessages);
     };

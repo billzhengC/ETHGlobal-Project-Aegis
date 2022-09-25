@@ -9,7 +9,7 @@ import { Fragment, useMemo } from "react";
 
 const navigation = [
   { name: "Quest", href: "/" },
-  { name: "Message", href: "/message" },
+  { name: "Message", href: "/messages" },
 ];
 
 const actionButton = {
