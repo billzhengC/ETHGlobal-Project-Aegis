@@ -4,10 +4,12 @@ import { POLYGON_MUMBAI_RPC_URL } from "@constants/constants";
 import { useLoading } from "@contexts/loadingProvider";
 import useABC from "@lib/common/abc";
 import { ethers } from "ethers";
+import { DateTime } from "luxon";
 
 import { ReactElement, useRef, useState } from "react";
 import { NotificationChangeResp } from "./api/notification/change";
 import { NotificationCheckResp } from "./api/notification/check";
+import { NotificationSendResp } from "./api/notification/send";
 import { NextPageWithLayout } from "./_app";
 
 const Home: NextPageWithLayout = () => {
@@ -15,6 +17,7 @@ const Home: NextPageWithLayout = () => {
   const { setLoading } = useLoading();
   const [subscriptionStatus, setSubscriptionStatus] = useState<boolean>();
   const [subscriptionTX, setSubscriptionTX] = useState<string>("");
+  const [sendStatus, setSendStatus] = useState<string>("");
   const timerRef = useRef<NodeJS.Timer>();
 
   return (
@@ -91,6 +94,25 @@ const Home: NextPageWithLayout = () => {
             </a>
           )}
         </div>
+        <button
+          onClick={async () => {
+            const resp = await call<NotificationSendResp>({
+              method: "post",
+              path: "/notification/send",
+              data: {
+                address_list: [
+                  "0xe08ee60D8fCEABE51159eC11B0211E8242E9D53d".toLowerCase(),
+                  "0xd9aF5Ac8f7DFe310eEEf2a66d582D1043Ae1881e",
+                ],
+                title: "The is a test message",
+                content: `The send time is ${DateTime.now().toISO()}`,
+              },
+            });
+            setSendStatus(resp.msg);
+          }}
+        >
+          Send Message {sendStatus}
+        </button>
       </div>
 
       <QuestDisplay />
