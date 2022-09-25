@@ -1,6 +1,7 @@
 import { useCommonContext } from "@contexts/commonContextProvider";
 import { useLoading } from "@contexts/loadingProvider";
 import { useModal } from "@contexts/modalProvider";
+import XmtpContext from "@contexts/xmtp";
 import { sign } from "@lib/api/middlewares/verify";
 import { getCookie, removeCookie } from "@lib/common/cookie";
 import { useMobile } from "@lib/common/hooks";
@@ -25,7 +26,7 @@ import jwt from "jsonwebtoken";
 import { DateTime } from "luxon";
 import { useRouter } from "next/router";
 import { SignInReq } from "pages/api/common/sign_in";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import nacl from "tweetnacl";
@@ -66,7 +67,7 @@ export default function useABC() {
   const wallet = useWeb3React();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
-
+  const { disconnect } = useContext(XmtpContext);
   const signer = useMemo(
     () => wallet?.provider?.getSigner(),
     [wallet.provider]
@@ -89,10 +90,8 @@ export default function useABC() {
       logger.error(
         `[useDC] connectWallet error, isMobile: ${isMobile}, err: ${e.message}`
       );
-    } finally {
-      setLoading({ visible: false });
     }
-  }, [isMobile, setLoading, token, wallet.connector, wallet.isActive]);
+  }, [isMobile, token, wallet.connector, wallet.isActive]);
 
   // Disconnect the wallet and logout
   const logout = useCallback(async () => {
@@ -103,6 +102,7 @@ export default function useABC() {
         wallet.connector.resetState();
       }
     }
+    disconnect();
     resetCommonContext();
     removeCookie(T_TOKEN_COOKIE_NAME);
     setToken(null);
@@ -110,7 +110,13 @@ export default function useABC() {
       return;
     }
     await router.replace("/");
-  }, [resetCommonContext, router, wallet.connector, wallet.isActive]);
+  }, [
+    disconnect,
+    resetCommonContext,
+    router,
+    wallet.connector,
+    wallet.isActive,
+  ]);
 
   /**
    * All the call to the backend should use this method

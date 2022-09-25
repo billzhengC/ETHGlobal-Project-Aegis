@@ -1,4 +1,6 @@
 import Layout from "@components/common/layout";
+import { useLoading } from "@contexts/loadingProvider";
+import { useModal } from "@contexts/modalProvider";
 import XmtpContext from "@contexts/xmtp";
 import { Menu, Transition } from "@headlessui/react";
 import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
@@ -36,47 +38,76 @@ const Messages: NextPageWithLayout = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Array<XmtpMessage>>([]);
   const [selectedMessage, setSelectedMessage] = useState<XmtpMessage>();
+
+  const { setModal } = useModal();
+  const { setLoading } = useLoading();
+
   const handleConnect = useCallback(async () => {
     await login();
-    initClient(signer);
+    await initClient(signer);
   }, [initClient, login, signer]);
 
   useEffect(() => {
-    if (!signer) {
-      return;
-    }
-    if (!client) {
-      handleConnect();
-    }
-  }, [client, handleConnect, signer]);
+    setModal({
+      visible: true,
+      closeable: false,
+      children: (
+        <div className="pb-2 px-2">
+          <button
+            onClick={async () => {
+              setLoading({ visible: true, message: "Signing in XMTP..." });
+              await handleConnect();
+            }}
+            type="button"
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-amber-500"
+          >
+            Sign In XMTP To Use Message
+          </button>
+        </div>
+      ),
+    });
+  }, [handleConnect, setLoading, setModal]);
 
   useEffect(() => {
     if (!client) {
       return;
     }
+
     const f = async () => {
-      const newMessages = new Array<XmtpMessage>();
-      const convos = await client.conversations.list();
-      for (const convo of convos) {
-        for (const message of await convo.messages()) {
-          const xmtpMessage = JSON.parse(message.content) as XmtpMessage;
-          xmtpMessage.id = message.id;
-          xmtpMessage.timestamp = DateTime.fromMillis(
-            message.header.timestamp.toNumber()
-          );
-          newMessages.push(xmtpMessage);
+      try {
+        setModal({ visible: false });
+        setLoading({ visible: true, message: "Listing Messages..." });
+        const newMessages = new Array<XmtpMessage>();
+        const convos = await client.conversations.list();
+        for (const convo of convos) {
+          for (const message of await convo.messages()) {
+            const xmtpMessage = JSON.parse(message.content) as XmtpMessage;
+            xmtpMessage.id = message.id;
+            if (
+              xmtpMessage.from === "0xe08ee60d8fceabe51159ec11b0211e8242e9d53d"
+            ) {
+              xmtpMessage.from = "Toucan Community";
+            }
+            xmtpMessage.timestamp = DateTime.fromMillis(
+              message.header.timestamp.toNumber()
+            );
+            newMessages.push(xmtpMessage);
+          }
         }
+        newMessages.sort((a: XmtpMessage, b: XmtpMessage) => {
+          if (a.timestamp > b.timestamp) {
+            return -1;
+          }
+          return 1;
+        });
+        setMessages(newMessages);
+        setLoading({ visible: false });
+      } catch (error) {
+        setLoading({ visible: false });
       }
-      newMessages.sort((a: XmtpMessage, b: XmtpMessage) => {
-        if (a.timestamp > b.timestamp) {
-          return -1;
-        }
-        return 1;
-      });
-      setMessages(newMessages);
     };
     f();
-  }, [client]);
+  }, [client, setLoading, setModal]);
 
   return (
     <div className="relative h-full flex flex-1 flex-col">
@@ -336,6 +367,11 @@ const Messages: NextPageWithLayout = () => {
             </aside>
           )}
         </main>
+      </div>
+      <div className="text-center bg-white">
+        <span className="text-gray-400 hover:animate-pulse text-bold italic underline">
+          Powered by XMTP
+        </span>
       </div>
     </div>
   );

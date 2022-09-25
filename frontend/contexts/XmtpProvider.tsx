@@ -49,7 +49,8 @@ export const XmtpProvider: FC<{ children: ReactNode }> = ({ children }) => {
     async (wallet: Signer) => {
       if (wallet && !client) {
         try {
-          setClient(await Client.create(wallet, { env: "dev" }));
+          const newClient = await Client.create(wallet, { env: "dev" });
+          setClient(newClient);
         } catch (e) {
           console.error(e);
           setClient(null);
@@ -64,29 +65,12 @@ export const XmtpProvider: FC<{ children: ReactNode }> = ({ children }) => {
     dispatchConversations(undefined);
   };
 
-  useEffect(() => {
-    if (!client) return;
-
-    const listConversations = async () => {
-      console.log("Listing conversations");
-      setLoadingConversations(true);
-      const convos = await client.conversations.list();
-      for (const convo of convos) {
-        const messages = await convo.messages();
-        convoMessages.set(convo.peerAddress, messages);
-        setConvoMessages(convoMessages);
-        dispatchConversations([convo]);
-      }
-      setLoadingConversations(false);
-    };
-    listConversations();
-  }, [client, convoMessages]);
-
   const [providerState, setProviderState] = useState<XmtpContextType>({
     client,
     conversations,
     loadingConversations,
     initClient,
+    disconnect,
     convoMessages,
   });
 
@@ -96,6 +80,7 @@ export const XmtpProvider: FC<{ children: ReactNode }> = ({ children }) => {
       conversations,
       loadingConversations,
       initClient,
+      disconnect,
       convoMessages,
     });
   }, [client, conversations, convoMessages, initClient, loadingConversations]);
