@@ -4,7 +4,6 @@ import { POLYGON_MUMBAI_RPC_URL } from "@constants/constants";
 import { useLoading } from "@contexts/loadingProvider";
 import useABC from "@lib/common/abc";
 import { ethers } from "ethers";
-import Link from "next/link";
 
 import { ReactElement, useRef, useState } from "react";
 import { NotificationChangeResp } from "./api/notification/change";
@@ -17,6 +16,7 @@ const Home: NextPageWithLayout = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<boolean>();
   const [subscriptionTX, setSubscriptionTX] = useState<string>("");
   const timerRef = useRef<NodeJS.Timer>();
+
   return (
     <div>
       <div className="flex flex-col">
