@@ -4,9 +4,8 @@ WORKDIR /app
 COPY package.json yarn.lock prisma ./
 RUN yarn install --frozen-lockfile
 
-FROM node:16-slim AS builder
+FROM node:16-alpine AS builder
 WORKDIR /app
-RUN apt-get update && apt-get install -y openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
