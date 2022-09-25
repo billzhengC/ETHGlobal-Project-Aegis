@@ -28,8 +28,8 @@ function classNames(...classes: string[]) {
 }
 const sidebarNavigation = [
   { name: "Open", href: "#", icon: InboxIcon, current: true },
-  { name: "Spam", href: "#", icon: BanIcon, current: false },
-  { name: "Drafts", href: "#", icon: PencilAltIcon, current: false },
+  // { name: "Spam", href: "#", icon: BanIcon, current: false },
+  // { name: "Drafts", href: "#", icon: PencilAltIcon, current: false },
 ];
 
 const Messages: NextPageWithLayout = () => {
@@ -367,11 +367,6 @@ const Messages: NextPageWithLayout = () => {
             </aside>
           )}
         </main>
-      </div>
-      <div className="text-center bg-white">
-        <span className="text-gray-400 hover:animate-pulse text-bold italic underline">
-          Powered by XMTP
-        </span>
       </div>
     </div>
   );

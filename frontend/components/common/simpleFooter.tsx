@@ -43,7 +43,27 @@ export default function SimpleFooter() {
         </div>
         <div className="mt-8 md:mt-0 md:order-1">
           <p className="text-center text-base text-gray-400">
-            Project Aegis @ 2022
+            Project Aegis{" "}
+            <span className="font-normal">
+              (
+              <a
+                href="/messages"
+                className="text-blue-500 hover:text-blue-400 italic underline"
+              >
+                Message Service
+              </a>{" "}
+              Powered by{" "}
+              <a
+                href="https://xmtp.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 hover:text-blue-400 italic underline"
+              >
+                XMTP
+              </a>
+              )
+            </span>{" "}
+            @ 2022
           </p>
         </div>
       </div>

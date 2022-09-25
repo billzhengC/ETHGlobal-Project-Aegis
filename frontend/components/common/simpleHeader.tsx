@@ -8,8 +8,8 @@ import { useRouter } from "next/router";
 import { Fragment, useMemo } from "react";
 
 const navigation = [
-  { name: "Quest", href: "/" },
-  { name: "Message", href: "/messages" },
+  { name: "Quests", href: "/" },
+  { name: "Messages", href: "/messages" },
 ];
 
 const actionButton = {
