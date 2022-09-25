@@ -60,6 +60,7 @@ const sendNotification = schedule("*/15 * * * * *", async () => {
           const projectName = meta["token"]["name"];
           const amount = NP.divide(meta["amount"], 1000000000000000000);
           const msg = {
+            from: "0xe08ee60d8fceabe51159ec11b0211e8242e9d53d",
             title: `Hi ${taskLog.t_user.uname}! You just won the Carbon Retirement Challenge`,
             content: `You have successfully retired ${amount} NCT in the project ${projectName}, you can claim your Badge now!`,
           };

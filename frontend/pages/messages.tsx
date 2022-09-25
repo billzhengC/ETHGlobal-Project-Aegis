@@ -61,7 +61,6 @@ const Messages: NextPageWithLayout = () => {
         for (const message of await convo.messages()) {
           const xmtpMessage = JSON.parse(message.content) as XmtpMessage;
           xmtpMessage.id = message.id;
-          xmtpMessage.from = convo.peerAddress;
           xmtpMessage.timestamp = DateTime.fromMillis(
             message.header.timestamp.toNumber()
           );
@@ -266,8 +265,8 @@ const Messages: NextPageWithLayout = () => {
             </section>
           ) : (
             /* Message list*/
-            <aside className="xl:block xl:flex-shrink-0 xl:order-first">
-              <div className="w-full h-full relative flex flex-col border-r border-gray-200 bg-gray-100">
+            <aside className="w-full xl:block xl:flex-shrink-0 xl:order-first">
+              <div className="-w-full h-full relative flex flex-col border-r border-gray-200 bg-gray-100">
                 <div className="flex-shrink-0">
                   <div className="h-16 bg-white px-6 flex flex-col justify-center">
                     <div className="flex items-baseline space-x-3">
@@ -310,10 +309,10 @@ const Messages: NextPageWithLayout = () => {
                                 aria-hidden="true"
                               />
                               <p className="text-sm font-medium text-gray-900 truncate">
-                                {message.from}
+                                From: {message.from ? message.from : "Unknown"}
                               </p>
                               <p className="text-sm text-gray-500 truncate">
-                                {message.title}
+                                Title: {message.title}
                               </p>
                             </a>
                           </div>
@@ -326,7 +325,7 @@ const Messages: NextPageWithLayout = () => {
                         </div>
                         <div className="mt-1">
                           <p className="line-clamp-2 text-sm text-gray-600">
-                            {message.content}
+                            Preview: {message.content}
                           </p>
                         </div>
                       </li>

@@ -40,7 +40,7 @@ const handler = async (
     provider
   );
   const contractResp = await contract.checkMulti(
-    req.user.wallet_pub,
+    "0xe08ee60d8fceabe51159ec11b0211e8242e9d53d",
     req.data.address_list
   );
   const toSendAddressList = new Array<string>();
@@ -60,7 +60,11 @@ const handler = async (
     sendList.push(
       xmtpClient.sendMessage(
         peerAddress,
-        JSON.stringify({ title: req.data.title, content: req.data.content })
+        JSON.stringify({
+          from: req.user.wallet_pub,
+          title: req.data.title,
+          content: req.data.content,
+        })
       )
     );
   }
