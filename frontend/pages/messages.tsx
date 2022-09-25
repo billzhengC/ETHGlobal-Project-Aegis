@@ -3,7 +3,6 @@ import XmtpContext from "@contexts/xmtp";
 import { Menu, Transition } from "@headlessui/react";
 import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
 import {
-  ChevronDoubleUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   DotsVerticalIcon,
@@ -31,16 +30,9 @@ const sidebarNavigation = [
   { name: "Drafts", href: "#", icon: PencilAltIcon, current: false },
 ];
 
-const messageDisplay = {
-  subject: "Congrats! You just won the Q3 2022 Carbon Retirement Challenge",
-  sender: "Toucan Protocol",
-  status: "Open",
-};
-
 const Messages: NextPageWithLayout = () => {
-  const { signer, call, login, logout } = useABC();
-  const { client, initClient, convoMessages, conversations } =
-    useContext(XmtpContext);
+  const { signer, call, login } = useABC();
+  const { client, initClient } = useContext(XmtpContext);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Array<XmtpMessage>>([]);
   const [selectedMessage, setSelectedMessage] = useState<XmtpMessage>();
