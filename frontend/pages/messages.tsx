@@ -1,59 +1,34 @@
 import Layout from "@components/common/layout";
-import { Fragment, useCallback, useContext, useEffect, useState } from "react";
+import XmtpContext from "@contexts/xmtp";
 import { Menu, Transition } from "@headlessui/react";
+import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   DotsVerticalIcon,
 } from "@heroicons/react/solid";
-import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
-import { ReactElement } from "react";
-import { NextPageWithLayout } from "./_app";
 import useABC from "@lib/common/abc";
-import XmtpContext from "@contexts/xmtp";
-import { Message } from "@xmtp/xmtp-js";
+import { XmtpMessage } from "@model/model";
+import { DateTime } from "luxon";
+import {
+  Fragment,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { NextPageWithLayout } from "./_app";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 const sidebarNavigation = [
   { name: "Open", href: "#", icon: InboxIcon, current: true },
-  // { name: "Archive", href: "#", icon: ArchiveIconOutline, current: false },
-  // { name: "Customers", href: "#", icon: UserCircleIcon, current: false },
-  // { name: "Flagged", href: "#", icon: FlagIcon, current: false },
   { name: "Spam", href: "#", icon: BanIcon, current: false },
   { name: "Drafts", href: "#", icon: PencilAltIcon, current: false },
 ];
 
-const messages = [
-  {
-    id: 1,
-    subject: "Hi Bill! You just won the Q3 2022 Carbon Retirement Challenge",
-    sender: "Toucan Protocol",
-    href: "#",
-    date: "2d ago",
-    datetime: "2021-08-27T16:35",
-    preview: "",
-  },
-  {
-    id: 2,
-    subject: "Exclusive Community Event Access",
-    sender: "Toucan Protocol",
-    href: "#",
-    date: "1d ago",
-    datetime: "2021-08-28T16:35",
-    preview: "",
-  },
-  {
-    id: 3,
-    subject: "Join your VIP program",
-    sender: "Klima",
-    href: "#",
-    date: "1d ago",
-    datetime: "2021-08-28T16:35",
-    preview: "",
-  },
-];
 const messageDisplay = {
   subject: "Congrats! You just won the Q3 2022 Carbon Retirement Challenge",
   sender: "Toucan Protocol",
@@ -65,7 +40,7 @@ const Messages: NextPageWithLayout = () => {
   const { client, initClient, convoMessages, conversations } =
     useContext(XmtpContext);
   const [open, setOpen] = useState(false);
-
+  const [messages, setMessages] = useState<Array<XmtpMessage>>([]);
   const handleConnect = useCallback(async () => {
     await login();
     initClient(signer);
@@ -85,18 +60,29 @@ const Messages: NextPageWithLayout = () => {
       return;
     }
     const f = async () => {
+      const newMessages = new Array<XmtpMessage>();
       const convos = await client.conversations.list();
-      const convoMessages = new Map<string, Message[]>();
       for (const convo of convos) {
-        const messages = await convo.messages();
-        convoMessages.set(convo.peerAddress, messages);
-        for (const [peerAddress, message] of convoMessages.entries()) {
-          console.log(peerAddress, message);
+        for (const message of await convo.messages()) {
+          const xmtpMessage = JSON.parse(message.content) as XmtpMessage;
+          xmtpMessage.id = message.id;
+          xmtpMessage.from = convo.peerAddress;
+          xmtpMessage.timestamp = DateTime.fromMillis(
+            message.header.timestamp.toNumber()
+          );
+          newMessages.push(xmtpMessage);
         }
       }
+      newMessages.sort((a: XmtpMessage, b: XmtpMessage) => {
+        if (a > b) {
+          return 1;
+        }
+        return -1;
+      });
+      setMessages(newMessages);
     };
     f();
-  }, [client, conversations, convoMessages]);
+  }, [client]);
 
   return (
     <div className="relative h-full flex flex-1 flex-col">
@@ -310,7 +296,7 @@ const Messages: NextPageWithLayout = () => {
                         <div className="flex justify-between space-x-3">
                           <div className="min-w-0 flex-1">
                             <a
-                              href={message.href}
+                              href="#" // TODO: link to message detail
                               className="block focus:outline-none"
                             >
                               <span
@@ -318,23 +304,23 @@ const Messages: NextPageWithLayout = () => {
                                 aria-hidden="true"
                               />
                               <p className="text-sm font-medium text-gray-900 truncate">
-                                {message.sender}
+                                {message.from}
                               </p>
                               <p className="text-sm text-gray-500 truncate">
-                                {message.subject}
+                                {message.title}
                               </p>
                             </a>
                           </div>
                           <time
-                            dateTime={message.datetime}
+                            dateTime={message.timestamp.toISO()}
                             className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
                           >
-                            {message.date}
+                            {message.timestamp.toISO()}
                           </time>
                         </div>
                         <div className="mt-1">
                           <p className="line-clamp-2 text-sm text-gray-600">
-                            {message.preview}
+                            {message.content}
                           </p>
                         </div>
                       </li>

@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { NextApiRequest } from "next";
 
 /**
@@ -32,4 +33,15 @@ export interface CronTokenPayload {
   source?: string; // source
   type?: string; // job type
   name?: string; // job name
+}
+
+/**
+ * XmtpMessage
+ */
+export interface XmtpMessage {
+  id: string; // message id
+  from: string; // sender address
+  title: string; // title of the message
+  content: string; // content of the message
+  timestamp: DateTime; // send time of the message
 }
