@@ -17,7 +17,7 @@ const actionButton = {
   href: "/create",
 };
 const userNavigation = [
-  { name: "Your Profile", href: "/profile" },
+  { name: "My Dashboard", href: "/dashboard" },
   // { name: "Settings", href: "#" },
   { name: "Disconnect", href: "#" },
 ];

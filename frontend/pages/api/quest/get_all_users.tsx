@@ -16,7 +16,7 @@ export interface GetAllUsersResp {
   userList: userItem[];
 }
 
-interface userItem {
+export interface userItem {
   userID: number;
   address: string;
   ens: string;
@@ -72,6 +72,7 @@ const handler = async (
 
   allUsersInTaskLogs.forEach((u) => {
     if (idList.includes(u.mid)) return;
+    idList.push(u.mid);
     // userList.push({ userID: Number(u.mid), address: u.meta?.creator?.id, timeCompleted: "" });
     userList.push({
       userID: Number(u.mid),
@@ -96,7 +97,6 @@ const handler = async (
     
     for (let j = 0; j < nfts.ownedNfts.length; j++) {
       const item = nfts.ownedNfts[j];
-      console.log(item.contract);
 
       if (RABBITHOLE_ADDRESS_LIST.includes(item.contract.address)) {
         userList[i].isOwnRabbithole = true;
