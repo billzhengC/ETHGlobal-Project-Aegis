@@ -4,6 +4,9 @@ tasks:
     before: cd frontend
     init: yarn
     command: yarn dev
+  - name: brownie
+    before: cd contracts/badge
+    init: yarn global add ganache-cli && python3 -m pip install --user pipx && python3 -m pipx ensurepath && pipx install eth-brownie
   - name: Restore env file
     before: cd frontend
     command: |
