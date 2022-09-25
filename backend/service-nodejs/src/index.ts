@@ -29,3 +29,25 @@ process.on("SIGINT", function () {
   server.close();
   process.kill(process.pid, "SIGINT");
 });
+
+process.on("SIGTERM", stopHandler);
+process.on("SIGINT", stopHandler);
+process.on("SIGHUP", stopHandler);
+
+async function stopHandler() {
+  console.log("Stopping...");
+
+  const timeoutId = setTimeout(() => {
+    console.error("Stopped forcefully, not all connection was closed");
+    process.exit(1);
+  }, 2000);
+
+  try {
+    stopJobs();
+    server.close();
+    clearTimeout(timeoutId);
+  } catch (error) {
+    console.error(error, "Error during stop.");
+    process.exit(1);
+  }
+}
