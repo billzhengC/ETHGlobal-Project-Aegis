@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import initJobs from "./jobs/jobs";
+import { initJobs, stopJobs } from "./jobs/jobs";
 
 dotenv.config();
 
@@ -13,6 +13,19 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
+});
+
+process.once("SIGUSR2", function () {
+  stopJobs();
+  server.close();
+  process.kill(process.pid, "SIGUSR2");
+});
+
+process.on("SIGINT", function () {
+  // this is only called on ctrl+c, not restart
+  stopJobs();
+  server.close();
+  process.kill(process.pid, "SIGINT");
 });
