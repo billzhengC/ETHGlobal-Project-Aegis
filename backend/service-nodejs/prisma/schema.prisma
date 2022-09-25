@@ -10,20 +10,21 @@ datasource db {
 }
 
 model t_users {
-  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  wallet_pub      String    @unique(map: "uk_wallet_pub") @default("") @db.VarChar(127)
-  wallet_type     String    @default("") @db.VarChar(127)
-  uname           String    @default("") @db.VarChar(127)
-  face            String    @default("") @db.VarChar(255)
-  gender          Int       @default(0)
-  twitter         String    @default("") @db.VarChar(255)
-  email           String    @default("") @db.VarChar(255)
-  about           String    @default("") @db.Text
-  meta            String    @default("") @db.Text
-  last_login_time DateTime  @default(dbgenerated("'0001-01-01 00:00:00'")) @db.DateTime(0)
-  mtime           DateTime  @default(now()) @db.DateTime(0)
-  ctime           DateTime  @default(now()) @db.DateTime(0)
+  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  wallet_pub      String        @unique(map: "uk_wallet_pub") @default("") @db.VarChar(127)
+  wallet_type     String        @default("") @db.VarChar(127)
+  uname           String        @default("") @db.VarChar(127)
+  face            String        @default("") @db.VarChar(255)
+  gender          Int           @default(0)
+  twitter         String        @default("") @db.VarChar(255)
+  email           String        @default("") @db.VarChar(255)
+  about           String        @default("") @db.Text
+  meta            String        @default("") @db.Text
+  last_login_time DateTime      @default(dbgenerated("'0001-01-01 00:00:00'")) @db.DateTime(0)
+  mtime           DateTime      @default(now()) @db.DateTime(0)
+  ctime           DateTime      @default(now()) @db.DateTime(0)
   t_go_ens        t_go_ens?
+  a_task_logs     a_task_logs[]
 
   @@index([mtime], map: "ix_mtime")
 }
@@ -74,6 +75,8 @@ model a_task_logs {
   meta     String   @db.Text
   mtime    DateTime @default(now()) @db.DateTime(0)
   ctime    DateTime @default(now()) @db.DateTime(0)
+
+  t_user t_users? @relation(fields: [mid], references: [id])
 
   @@index([mid], map: "ix_mid")
   @@index([mtime], map: "ix_mtime")

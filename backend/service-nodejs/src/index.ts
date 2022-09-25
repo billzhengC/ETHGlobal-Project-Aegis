@@ -1,6 +1,6 @@
-import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import { initJobs, stopJobs } from "./jobs/jobs";
+import express, { Express, Request, Response } from "express";
+import { initJobs, stopJobs } from "./job/job";
 
 dotenv.config();
 
@@ -35,8 +35,6 @@ process.on("SIGINT", stopHandler);
 process.on("SIGHUP", stopHandler);
 
 async function stopHandler() {
-  console.log("Stopping...");
-
   const timeoutId = setTimeout(() => {
     console.error("Stopped forcefully, not all connection was closed");
     process.exit(1);
