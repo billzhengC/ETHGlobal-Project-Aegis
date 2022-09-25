@@ -16,8 +16,6 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-USER nextjs
-
 EXPOSE 8079
 
 ENV PORT 8079
