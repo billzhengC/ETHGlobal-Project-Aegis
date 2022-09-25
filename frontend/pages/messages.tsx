@@ -1,5 +1,5 @@
 import Layout from "@components/common/layout";
-import { Fragment, useState } from "react";
+import { Fragment, useCallback, useContext, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import {
   ChevronDownIcon,
@@ -9,6 +9,9 @@ import {
 import { BanIcon, InboxIcon, PencilAltIcon } from "@heroicons/react/outline";
 import { ReactElement } from "react";
 import { NextPageWithLayout } from "./_app";
+import useABC from "@lib/common/abc";
+import XmtpContext from "@contexts/xmtp";
+import { Message } from "@xmtp/xmtp-js";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -30,8 +33,7 @@ const messages = [
     href: "#",
     date: "2d ago",
     datetime: "2021-08-27T16:35",
-    preview:
-      "",
+    preview: "",
   },
   {
     id: 2,
@@ -40,8 +42,7 @@ const messages = [
     href: "#",
     date: "1d ago",
     datetime: "2021-08-28T16:35",
-    preview:
-      "",
+    preview: "",
   },
   {
     id: 3,
@@ -50,8 +51,7 @@ const messages = [
     href: "#",
     date: "1d ago",
     datetime: "2021-08-28T16:35",
-    preview:
-      "",
+    preview: "",
   },
 ];
 const messageDisplay = {
@@ -60,42 +60,75 @@ const messageDisplay = {
   status: "Open",
 };
 
-
-
-const Message: NextPageWithLayout = () => {
+const Messages: NextPageWithLayout = () => {
+  const { signer, call, login, logout } = useABC();
+  const { client, initClient, convoMessages, conversations } =
+    useContext(XmtpContext);
   const [open, setOpen] = useState(false);
 
-  return (
-    <>
-      <div className="h-full flex flex-col">
-        {/* Bottom section */}
-        <div className="min-h-0 flex-1 flex overflow-hidden">
-          {/* Narrow sidebar*/}
-          <nav
-            aria-label="Sidebar"
-            className="hidden lg:block lg:flex-shrink-0 lg:bg-gray-800 lg:overflow-y-auto"
-          >
-            <div className="relative w-20 flex flex-col p-3 space-y-3 min-h-max">
-              {sidebarNavigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={classNames(
-                    item.current
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-400 hover:bg-gray-700",
-                    "flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg"
-                  )}
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          </nav>
+  const handleConnect = useCallback(async () => {
+    await login();
+    initClient(signer);
+  }, [initClient, login, signer]);
 
-          {/* Main area */}
-          <main className="min-w-0 flex-1 border-t border-gray-200 xl:flex">
+  useEffect(() => {
+    if (!signer) {
+      return;
+    }
+    if (!client) {
+      handleConnect();
+    }
+  }, [client, handleConnect, signer]);
+
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+    const f = async () => {
+      const convos = await client.conversations.list();
+      const convoMessages = new Map<string, Message[]>();
+      for (const convo of convos) {
+        const messages = await convo.messages();
+        convoMessages.set(convo.peerAddress, messages);
+        for (const [peerAddress, message] of convoMessages.entries()) {
+          console.log(peerAddress, message);
+        }
+      }
+    };
+    f();
+  }, [client, conversations, convoMessages]);
+
+  return (
+    <div className="relative h-full flex flex-1 flex-col">
+      {/* Bottom section */}
+      <div className="min-h-0 flex-1 flex overflow-hidden">
+        {/* Narrow sidebar*/}
+        <nav
+          aria-label="Sidebar"
+          className="hidden lg:block lg:flex-shrink-0 lg:bg-gray-800 lg:overflow-y-auto"
+        >
+          <div className="relative w-20 flex flex-col p-3 space-y-3 min-h-max">
+            {sidebarNavigation.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className={classNames(
+                  item.current
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-400 hover:bg-gray-700",
+                  "flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg"
+                )}
+              >
+                <span className="sr-only">{item.name}</span>
+                <item.icon className="h-6 w-6" aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        {/* Main area */}
+        <main className="min-w-0 flex-1 border-t border-gray-200 xl:flex">
+          {open ? (
             <section
               aria-labelledby="message-heading"
               className="min-w-0 flex-1 h-full flex flex-col overflow-hidden xl:order-last"
@@ -238,14 +271,14 @@ const Message: NextPageWithLayout = () => {
                   role="list"
                   className="py-4 space-y-2 sm:px-6 sm:space-y-4 lg:px-8"
                 >
-                 {`Details on next quest / community events`}
+                  {`Details on next quest / community events`}
                 </ul>
               </div>
             </section>
-
-            {/* Message list*/}
-            <aside className="hidden xl:block xl:flex-shrink-0 xl:order-first">
-              <div className="h-full relative flex flex-col w-96 border-r border-gray-200 bg-gray-100">
+          ) : (
+            /* Message list*/
+            <aside className="xl:block xl:flex-shrink-0 xl:order-first">
+              <div className="w-full h-full relative flex flex-col border-r border-gray-200 bg-gray-100">
                 <div className="flex-shrink-0">
                   <div className="h-16 bg-white px-6 flex flex-col justify-center">
                     <div className="flex items-baseline space-x-3">
@@ -310,16 +343,15 @@ const Message: NextPageWithLayout = () => {
                 </nav>
               </div>
             </aside>
-          </main>
-        </div>
+          )}
+        </main>
       </div>
-    </>
+    </div>
   );
 };
 
-Message.getLayout = (page: ReactElement) => {
+Messages.getLayout = (page: ReactElement) => {
   return <Layout>{page}</Layout>;
 };
 
-export default Message;
-
+export default Messages;

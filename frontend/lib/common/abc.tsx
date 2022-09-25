@@ -25,6 +25,7 @@ import jwt from "jsonwebtoken";
 import { DateTime } from "luxon";
 import { useRouter } from "next/router";
 import { SignInReq } from "pages/api/common/sign_in";
+import { useMemo } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import nacl from "tweetnacl";
@@ -65,6 +66,11 @@ export default function useABC() {
   const wallet = useWeb3React();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
+
+  const signer = useMemo(
+    () => wallet?.provider?.getSigner(),
+    [wallet.provider]
+  );
 
   // Connect the wallet
   const login = useCallback(async () => {
@@ -297,5 +303,5 @@ export default function useABC() {
     wallet.provider,
   ]);
 
-  return { token, call, login, logout };
+  return { signer, token, call, login, logout };
 }
