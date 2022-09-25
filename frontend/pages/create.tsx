@@ -1,24 +1,15 @@
-import React from "react";
 
-import { Fragment, useState } from "react";
 import {
   Disclosure,
-  Menu,
-  RadioGroup,
-  Switch,
-  Transition,
+  Menu, Transition
 } from "@headlessui/react";
-import { QuestionMarkCircleIcon, SearchIcon } from "@heroicons/react/solid";
 import {
   BellIcon,
-  CogIcon,
-  CreditCardIcon,
-  KeyIcon,
-  MenuIcon,
-  UserCircleIcon,
-  ViewGridAddIcon,
-  XIcon,
+  CogIcon, MenuIcon,
+  UserCircleIcon, XIcon
 } from "@heroicons/react/outline";
+import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
+import { Fragment } from "react";
 
 const user = {
   name: "Carbon X",
