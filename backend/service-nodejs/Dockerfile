@@ -22,7 +22,7 @@ RUN adduser --system --uid 1001 aegis
 # You only need to copy next.config.js if you are NOT using the default configuration
 # COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
+COPY --from=deps /app/node_modules ./node_modules
 
 USER aegis
 EXPOSE 8079
