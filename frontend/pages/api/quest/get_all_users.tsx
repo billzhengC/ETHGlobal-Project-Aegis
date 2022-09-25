@@ -70,18 +70,24 @@ const handler = async (
 
   let idList = [];
 
-  allUsersInTaskLogs.forEach((u) => {
-    if (idList.includes(u.mid)) return;
+  for (let i = 0; i < allUsersInTaskLogs.length; i++) {
+    const u = allUsersInTaskLogs[i];
+    if (idList.includes(u.mid)) continue;
     idList.push(u.mid);
     // userList.push({ userID: Number(u.mid), address: u.meta?.creator?.id, timeCompleted: "" });
+
+    const userSelected = await prisma.t_users.findUnique({
+      where: { id: u.mid },
+    });
+
     userList.push({
       userID: Number(u.mid),
-      address: JSON.parse(u.meta)?.creator?.id,
+      address: userSelected.wallet_pub || "",
       timeCompleted: u.mtime,
       ens: "",
       isOwnRabbithole: false,
     });
-  });
+  }
 
   for (let i = 0; i < userList.length; i++) {
     // Find ENS in db and add to each user
@@ -92,9 +98,11 @@ const handler = async (
     });
     userList[i].ens = ensItem?.ens || "";
 
+    console.log(userList);
+
     // Check if user owns rabbithole
     const nfts = await alchemy.nft.getNftsForOwner(userList[i].address);
-    
+
     for (let j = 0; j < nfts.ownedNfts.length; j++) {
       const item = nfts.ownedNfts[j];
 
