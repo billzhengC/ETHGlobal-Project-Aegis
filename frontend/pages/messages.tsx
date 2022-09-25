@@ -48,6 +48,9 @@ const Messages: NextPageWithLayout = () => {
   }, [initClient, login, signer]);
 
   useEffect(() => {
+    if (client) {
+      return;
+    }
     setModal({
       visible: true,
       closeable: false,
@@ -66,7 +69,7 @@ const Messages: NextPageWithLayout = () => {
         </div>
       ),
     });
-  }, [handleConnect, setLoading, setModal]);
+  }, [client, handleConnect, setLoading, setModal]);
 
   useEffect(() => {
     if (!client) {
