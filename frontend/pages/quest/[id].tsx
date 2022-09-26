@@ -5,6 +5,7 @@ import Image from "next/image";
 import {
   Fragment,
   ReactElement,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -129,7 +130,7 @@ export default function QuestID() {
   const [sendStatus, setSendStatus] = useState<string>("");
   const timerRef = useRef<NodeJS.Timer>();
 
-  const checkTaskCompletion = async () => {
+  const checkTaskCompletion = useCallback(async () => {
     const resp = await call<CompletionStatusResp>({
       method: "get",
       path: "/quest/completion_status",
@@ -142,14 +143,15 @@ export default function QuestID() {
     setIsClaimed(resp?.isClaimed);
 
     console.log(resp);
-  };
+  }, [call, questID]);
+
   useEffect(() => {
     if (!user || !questID) return;
 
     checkTaskCompletion();
-  }, [questID, user]);
+  }, [checkTaskCompletion, questID, user]);
 
-  const subscribe = async () => {
+  const subscribe = useCallback(async () => {
     setLoading({
       visible: true,
       message: "Subscribing...",
@@ -169,7 +171,7 @@ export default function QuestID() {
       message: "Checking subscription status...",
     });
     // Create keypair on XMTP
-    await Client.create(signer)
+    await Client.create(signer);
     const provider = new ethers.providers.JsonRpcProvider(
       POLYGON_MUMBAI_RPC_URL
     );
@@ -184,7 +186,7 @@ export default function QuestID() {
         setSubscriptionStatus(true);
       }
     }, 2000);
-  };
+  }, [call, setLoading, signer]);
 
   const toggleSubscribe = async () => {
     if (typeof subscriptionStatus === "undefined") {
