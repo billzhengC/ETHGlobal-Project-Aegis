@@ -356,7 +356,7 @@ const Messages: NextPageWithLayout = () => {
                             dateTime={message.timestamp.toISO()}
                             className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
                           >
-                            {message.timestamp.toFormat("yyyy-MM-dd hh:mm:ss")}
+                            {message.timestamp.toFormat("yyyy-MM-dd HH:mm:ss")}
                           </time>
                         </div>
                         <div className="mt-1">
