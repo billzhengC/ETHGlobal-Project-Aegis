@@ -21,6 +21,7 @@ import { NotificationChangeResp } from "pages/api/notification/change";
 import { ethers } from "ethers";
 import { Transition, Dialog } from "@headlessui/react";
 import { CheckIcon } from "@mantine/core";
+import { Client } from "@xmtp/xmtp-js";
 
 const exampleData = [
   {
@@ -118,7 +119,7 @@ export default function QuestID() {
   );
 
   const { user } = useCommonContext();
-  const { call } = useABC();
+  const { signer, call } = useABC();
   const [isTaskCompleted, setIsTaskCompleted] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
 
@@ -167,6 +168,8 @@ export default function QuestID() {
       visible: true,
       message: "Checking subscription status...",
     });
+    // Create keypair on XMTP
+    await Client.create(signer)
     const provider = new ethers.providers.JsonRpcProvider(
       POLYGON_MUMBAI_RPC_URL
     );
